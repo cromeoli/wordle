@@ -92,7 +92,9 @@ public class JugadorController {
 
 
         if(playerNewData.getEquipo_id() != null){
+
             Equipo team = equipoRepo.findById(playerNewData.getEquipo_id()).orElse(null);
+
             if(team != null){
                 playerToModify.setEquipo(team);
             }
@@ -102,6 +104,7 @@ public class JugadorController {
             return ResponseEntity.notFound().build();
         }
 
+        // Los compruebo individualmente para poder hacer modificaciones parciales
 
         if (playerNewData.getAdmin() == 0 || playerNewData.getAdmin() == 1)
             playerToModify.setAdmin(playerNewData.getAdmin());

@@ -1,23 +1,26 @@
 package christian.wordle.wordgames.controller;
 
-
 import christian.wordle.wordgames.model.Equipo;
+import christian.wordle.wordgames.model.Jugador;
 import christian.wordle.wordgames.repo.EquipoRepo;
+import christian.wordle.wordgames.repo.JugadoRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController @RequiredArgsConstructor
 public class EquipoController {
 
     private final EquipoRepo equipoRepo;
+    private final JugadoRepo jugadorRepo;
 
     @GetMapping("/equipos")
     public ResponseEntity<?> getAllTeams(){
+
         List<Equipo> allTeams = equipoRepo.findAll();
 
         if(allTeams.isEmpty()){
@@ -29,11 +32,37 @@ public class EquipoController {
 
     @GetMapping("/equipos/{id}")
     public ResponseEntity<?> getTeam(@PathVariable Long id){
+
         Equipo team = equipoRepo.findById(id).orElse(null);
 
         return (team == null) ?
                 ResponseEntity.notFound().build() :
                 ResponseEntity.ok(team);
+    }
+
+
+    @GetMapping("/equipos/jugadores/{id}")
+    public ResponseEntity<?> getTeamPlayers(@PathVariable Long id){
+        Equipo equipo = equipoRepo.findById(id).orElse(null);
+
+        if(equipo == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        List<Jugador> allPlayers = jugadorRepo.findAll();
+
+        List<Jugador> playersInTeam = new ArrayList<>();
+
+        for ( Jugador player : allPlayers ){
+            if(player.getEquipo() != null){
+                if(player.getEquipo().getId() == id){
+                    playersInTeam.add(player);
+                }
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(playersInTeam);
+
     }
 
     @PostMapping("/equipos")
@@ -67,6 +96,8 @@ public class EquipoController {
         if(team == null){
            return ResponseEntity.notFound().build();
         }
+
+        // Los compruebo individualmente para poder modificar tan solo parcialmente
 
         if (teamNewData.getNombre() != null)
             team.setNombre(teamNewData.getNombre());
