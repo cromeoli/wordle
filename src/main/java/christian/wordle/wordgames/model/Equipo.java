@@ -20,7 +20,7 @@ public class Equipo {
 
     private String nombre;
 
-    private int puntos;
+    private Long puntos;
 
     private String logo = null;
 

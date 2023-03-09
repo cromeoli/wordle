@@ -38,8 +38,13 @@ public class EquipoController {
 
     @PostMapping("/equipos")
     public ResponseEntity<?> addTeam(@RequestBody Equipo newTeam){
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(equipoRepo.save(newTeam));
+        if(newTeam.getPuntos() != null){
+            newTeam.setPuntos(0L);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(equipoRepo.save(newTeam));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @DeleteMapping("/equipos/{id}")

@@ -41,22 +41,32 @@ public class JugadorController {
 
 
     @PostMapping("/jugadores")
-    public ResponseEntity<?> addPlayer(@RequestBody NuevoJugadorDTO newPlayer){
+    public ResponseEntity<?> addPlayer(@RequestBody NuevoJugadorDTO newPlayerData){
 
-        Jugador nuevoJugador = new Jugador();
-        Equipo defaultTeam = equipoRepo.findById(8L).orElse(null);
+        Jugador newPlayer = new Jugador(); // Se crea default con puntos 0, por lo que no hago set
 
-        if(newPlayer.getNombre() != null
-                && (newPlayer.getAdmin() == 1 || newPlayer.getAdmin() == 0)
-                && newPlayer.getClave() != null){
+        Equipo team = null;
+        if(newPlayerData.getEquipo_id() != null){
 
-            nuevoJugador.setNombre(newPlayer.getNombre());
-            nuevoJugador.setEquipo(defaultTeam);
-            nuevoJugador.setClave(newPlayer.getClave());
-            nuevoJugador.setAvatar(newPlayer.getAvatar());
+            team = equipoRepo.findById(newPlayerData.getEquipo_id())
+                    .orElse(null);
+        }
+
+        if(newPlayerData.getNombre() != null && newPlayerData.getClave() != null){
+
+            if (newPlayerData.getAdmin() == 1 || newPlayerData.getAdmin() == 0) {
+                newPlayer.setAdmin(newPlayer.getAdmin());
+            } else {
+                newPlayer.setAdmin(0); // Error "El formato del jugador debe ser..."
+            }
+
+            newPlayer.setNombre(newPlayerData.getNombre());
+            newPlayer.setEquipo(team);
+            newPlayer.setClave(newPlayerData.getClave());
+            newPlayer.setAvatar(newPlayerData.getAvatar());
 
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(jugadoRepo.save(nuevoJugador));
+                    .body(jugadoRepo.save(newPlayer));
 
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
@@ -78,37 +88,39 @@ public class JugadorController {
 
     @PutMapping("jugadores/{id}")
     public ResponseEntity<?> updateTeam(@RequestBody NuevoJugadorDTO playerNewData, @PathVariable Long id){
-        Jugador modifiedPlayer = jugadoRepo.findById(id).orElse(null);
+        Jugador playerToModify = jugadoRepo.findById(id).orElse(null);
+
+
         if(playerNewData.getEquipo_id() != null){
             Equipo team = equipoRepo.findById(playerNewData.getEquipo_id()).orElse(null);
             if(team != null){
-                modifiedPlayer.setEquipo(team);
+                playerToModify.setEquipo(team);
             }
         }
 
-        if(modifiedPlayer == null){
+        if(playerToModify == null){
             return ResponseEntity.notFound().build();
         }
 
 
         if (playerNewData.getAdmin() == 0 || playerNewData.getAdmin() == 1)
-            modifiedPlayer.setAdmin(playerNewData.getAdmin());
+            playerToModify.setAdmin(playerNewData.getAdmin());
 
         if (playerNewData.getNombre() != null)
-            modifiedPlayer.setNombre(playerNewData.getNombre());
+            playerToModify.setNombre(playerNewData.getNombre());
 
         if (playerNewData.getClave() != null)
-            modifiedPlayer.setClave(playerNewData.getClave());
+            playerToModify.setClave(playerNewData.getClave());
 
         if (playerNewData.getAvatar() != null)
-            modifiedPlayer.setAvatar(playerNewData.getAvatar());
+            playerToModify.setAvatar(playerNewData.getAvatar());
 
         if (playerNewData.getPuntos() != null)
-            modifiedPlayer.setPuntos((playerNewData.getPuntos().intValue()));
+            playerToModify.setPuntos((playerNewData.getPuntos().intValue()));
 
-        jugadoRepo.save(modifiedPlayer);
+        jugadoRepo.save(playerToModify);
 
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(modifiedPlayer);
+                .body(playerToModify);
     }
 }
