@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Data
 @NoArgsConstructor @AllArgsConstructor
@@ -23,7 +20,8 @@ public class Juego {
 
     private String instrucciones;
 
-    private String intentosMax;
+    @Column(name="intentosmax") // Hibernate es muy gracioso y cambia intentosMax a intentos_max...
+    private int intentosMax;
 
     private String dificultad;
 }

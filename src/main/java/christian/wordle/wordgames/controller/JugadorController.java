@@ -1,27 +1,30 @@
 package christian.wordle.wordgames.controller;
 
 
+import christian.wordle.wordgames.DTO.RankingJugadorDTO;
 import christian.wordle.wordgames.DTO.NuevoJugadorDTO;
 import christian.wordle.wordgames.model.Equipo;
 import christian.wordle.wordgames.model.Jugador;
 import christian.wordle.wordgames.repo.EquipoRepo;
-import christian.wordle.wordgames.repo.JugadoRepo;
+import christian.wordle.wordgames.repo.JugadorRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController @RequiredArgsConstructor
 public class JugadorController {
 
-    private final JugadoRepo jugadoRepo;
+    private final JugadorRepo jugadorRepo;
     private final EquipoRepo equipoRepo;
 
     @GetMapping("/jugadores")
     public ResponseEntity<?> getAllPlayers(){
-        List<Jugador> allPlayers = jugadoRepo.findAll();
+        List<Jugador> allPlayers = jugadorRepo.findAll();
 
         if(allPlayers.isEmpty()){
             return ResponseEntity.notFound().build();
@@ -30,9 +33,29 @@ public class JugadorController {
         return ResponseEntity.ok(allPlayers);
     }
 
+    @GetMapping("/jugadores/ranking")
+    public ResponseEntity<?> getAllPlayersOrderByScore() {
+        List<RankingJugadorDTO> allPlayers = jugadorRepo.findAll(Sort.by(Sort.Direction.DESC, "puntos"))
+                .stream()
+                .map(jugador -> new RankingJugadorDTO(
+                        jugador.getNombre(),
+                        jugador.getPuntos(),
+                        jugador.getAvatar(),
+                        jugador.getEquipo() != null ? jugador.getEquipo().getNombre() : null))
+                .collect(Collectors.toList());
+
+        if (allPlayers.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(allPlayers);
+    }
+
+    // Jugadores ordenados por puntuación
+
     @GetMapping("/jugadores/{id}")
     public ResponseEntity<?> getPlayer(@PathVariable Long id){
-        Jugador player = jugadoRepo.findById(id).orElse(null);
+        Jugador player = jugadorRepo.findById(id).orElse(null);
 
         return (player == null) ?
                 ResponseEntity.notFound().build() :
@@ -66,7 +89,7 @@ public class JugadorController {
             newPlayer.setAvatar(newPlayerData.getAvatar());
 
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(jugadoRepo.save(newPlayer));
+                    .body(jugadorRepo.save(newPlayer));
 
         } else {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
@@ -75,20 +98,20 @@ public class JugadorController {
 
     @DeleteMapping("/jugadores/{id}")
     public ResponseEntity<?> deleteTeam(@PathVariable Long id){
-        Jugador deletedPlayer = jugadoRepo.findById(id).orElse(null);
+        Jugador deletedPlayer = jugadorRepo.findById(id).orElse(null);
 
         if(deletedPlayer == null){
             return ResponseEntity.notFound().build();
         }
 
-        jugadoRepo.deleteById(id);
+        jugadorRepo.deleteById(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(deletedPlayer);
     }
 
     @PutMapping("jugadores/{id}")
     public ResponseEntity<?> updateTeam(@RequestBody NuevoJugadorDTO playerNewData, @PathVariable Long id){
-        Jugador playerToModify = jugadoRepo.findById(id).orElse(null);
+        Jugador playerToModify = jugadorRepo.findById(id).orElse(null);
 
 
         if(playerNewData.getEquipo_id() != null){
@@ -118,7 +141,7 @@ public class JugadorController {
         if (playerNewData.getPuntos() != null)
             playerToModify.setPuntos((playerNewData.getPuntos().intValue()));
 
-        jugadoRepo.save(playerToModify);
+        jugadorRepo.save(playerToModify);
 
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(playerToModify);
