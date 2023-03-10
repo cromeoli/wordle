@@ -53,29 +53,6 @@ public class PartidaController {
                 ResponseEntity.ok(match);
     }
 
-    //TODO Get de todas las partidas de un juego
-
-    /*TODO POST Partida
-    * DTO -> jugador_id, juego_id, palabra
-    *
-    * Crear objeto de tipo partida, juego y jugador
-    * Juego = juegorepo.findbyid(newMatchData.getJuegoId())
-    * Jugador = jugadorrepo.findbyid(newMatchData.getjugadorId())
-    * Partida = new Partida
-    *
-    * newpartida.setjuego(juego)
-    * newpartida.setjugador(jugador)
-    * newpartida.setdate(new Date)
-    *
-    * newpartida.setPalabra(newMatchData.getPalabra)
-    *
-    * newpartida.setPuntos()
-    *
-    * añadir puntos equipo
-    * añadir puntos jugador
-    *
-    * */
-
     @PostMapping("/partidas")
     public ResponseEntity<?> registerMatch(@RequestBody NuevaPartidaDTO newMatchData) {
         // Comprobar si los campos requeridos están presentes en el DTO
