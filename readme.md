@@ -29,4 +29,4 @@ Lo he añadido aquí porque no tenía tanto sentido hacerlo sin una partida que 
 
 - datosDePrueba.sql
 
-Se han añadido datos de prueba nuevos para las partidas y 
+Se han añadido datos de prueba nuevos para las partidas.
