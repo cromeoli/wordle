@@ -25,3 +25,8 @@ Lo he añadido aquí porque no tenía tanto sentido hacerlo sin una partida que 
 ## Archivo peticiones insomnia
 - exportPartidasJuegos
 
+## Datos de prueba
+
+- datosDePrueba.sql
+
+Se han añadido datos de prueba nuevos para las partidas y 
