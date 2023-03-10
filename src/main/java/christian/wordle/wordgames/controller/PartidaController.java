@@ -28,8 +28,8 @@ public class PartidaController {
     private final PartidaRepo partidaRepo;
     private final JugadorRepo jugadorRepo;
     private final JuegoRepo juegoRepo;
-
     private final EquipoRepo equipoRepo;
+
 
     @GetMapping("/partidas")
     public ResponseEntity<?> getAllMatches(){
@@ -97,7 +97,7 @@ public class PartidaController {
         partida.setPalabra(newMatchData.getPalabra());
 
         // Calcular los puntos obtenidos y asignarlos a la partida y al jugador
-        int puntos = calcularPuntos(newMatchData.getPalabra());
+        int puntos = calcularPuntos(newMatchData.getPalabra(), juego.getDificultad());
         partida.setPuntos(puntos);
         jugador.setPuntos(jugador.getPuntos() + puntos);
 
@@ -116,19 +116,36 @@ public class PartidaController {
     }
 
     // Función auxiliar para calcular los puntos obtenidos en una partida
-    private int calcularPuntos(String palabra) {
+    private int calcularPuntos(String palabra, String dificultad) {
         Set<Character> letrasDiferentes = new HashSet<>();
         for (int i = 0; i < palabra.length(); i++) {
             letrasDiferentes.add(palabra.charAt(i));
         }
         int longitud = palabra.length();
         int multiplicador = 1;
+
         if (longitud >= 8 && letrasDiferentes.size() >= 5) {
-            multiplicador = 2;
+            multiplicador = 3;
         } else if (longitud >= 6 && letrasDiferentes.size() >= 3) {
-            multiplicador = 3 / 2;
+            multiplicador = 2;
         }
-        return longitud * multiplicador;
+
+        int puntos = longitud * multiplicador;
+
+        switch (dificultad){
+            case "Facil":
+                puntos *= 1;
+                break;
+
+            case "Medio":
+                puntos *= 2;
+                break;
+            case "Dificil":
+                puntos *= 3;
+                break;
+        }
+
+        return puntos;
     }
 
     @DeleteMapping("/partidas/{id}")
@@ -150,5 +167,7 @@ public class PartidaController {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(matchToDelete);
     }
+
+    // Considero que modificar una partida no tiene sentido por lo que no implemento put
 
 }
